@@ -52,7 +52,7 @@ async function testTranscriptionAPI() {
     const options = {
       hostname: 'aitrystt.vercel.app',
       port: 443,
-      path: '/api/transcribe',
+      path: '/api/transcribe/',
       method: 'POST',
       headers: form.getHeaders()
     };

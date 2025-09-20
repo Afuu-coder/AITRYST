@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { transcribeAudioWithVertex } from '@/lib/vertexAIServer';
+import { transcribeAudioWithVertex, generateProductContentFromTranscription } from '@/lib/vertexAIServer';
 import { Buffer } from 'buffer';
 
 export async function POST(request: Request) {
@@ -39,8 +39,16 @@ export async function POST(request: Request) {
     
     console.log('✅ Transcription completed:', transcription.substring(0, 100) + '...');
     
+    // Generate product content from transcription
+    console.log('🔄 Generating product content...');
+    const languageCode = language?.includes('hi') ? 'hi' : 'en';
+    const productContent = await generateProductContentFromTranscription(transcription, languageCode);
+    
+    console.log('✅ Product content generated successfully');
+    
     return NextResponse.json({ 
       transcription,
+      productContent,
       language: language || 'en-US',
       success: true 
     });

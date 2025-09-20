@@ -60,6 +60,82 @@ if (projectId) {
 }
 
 /**
+ * Generate product content from transcription using Vertex AI Gemini model (server-side only)
+ */
+export const generateProductContentFromTranscription = async (transcription: string, language: 'en' | 'hi' = 'en') => {
+  try {
+    // Check if Vertex AI is initialized
+    if (!textModel) {
+      throw new Error('Vertex AI not initialized. Check your environment variables.');
+    }
+    
+    // Add language-specific instructions
+    const languageInstruction = language === 'hi' 
+      ? 'Respond in Hindi language.' 
+      : 'Respond in English language.';
+      
+    const prompt = `Based on the following audio transcription of a product description, generate professional product content for e-commerce:
+
+Transcription: "${transcription}"
+
+Please analyze this transcription and create:
+
+${languageInstruction}
+
+Format your response as JSON with the following structure:
+{
+  "title": "A compelling product title (max 60 characters)",
+  "description": "A detailed product description highlighting key features and benefits",
+  "shortDescription": "A brief description for product cards (max 150 characters)",
+  "features": ["Feature 1", "Feature 2", "Feature 3"],
+  "benefits": ["Benefit 1", "Benefit 2", "Benefit 3"],
+  "keywords": ["keyword1", "keyword2", "keyword3"],
+  "category": "Product category",
+  "tags": ["tag1", "tag2", "tag3"],
+  "socialMediaPost": "A social media post for marketing",
+  "whatsappMessage": "A WhatsApp message for sharing",
+  "emailSubject": "Email subject line for marketing",
+  "pricingSuggestion": "Suggested pricing based on description"
+}`;
+
+    const result = await textModel.generateContent(prompt);
+    const response = await result.response;
+    const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    
+    // Try to parse as JSON, fallback to structured response if parsing fails
+    try {
+      const productContent = JSON.parse(text);
+      
+      // Validate the response structure
+      if (productContent && productContent.title && productContent.description) {
+        return productContent;
+      } else {
+        throw new Error('Invalid product content structure');
+      }
+    } catch {
+      // If JSON parsing fails, return a structured response
+      return {
+        title: 'Handcrafted Product',
+        description: `This beautiful handcrafted product was described as: "${transcription}". It features traditional craftsmanship and authentic design, perfect for those who appreciate quality and artistry.`,
+        shortDescription: 'Authentic handcrafted product with traditional design',
+        features: ['Handcrafted', 'Traditional Design', 'High Quality'],
+        benefits: ['Unique', 'Authentic', 'Durable'],
+        keywords: ['handcrafted', 'traditional', 'artisan'],
+        category: 'Handcrafted Items',
+        tags: ['handmade', 'traditional', 'artisan'],
+        socialMediaPost: `Check out this amazing handcrafted product! ${transcription.substring(0, 100)}... #handcrafted #artisan #traditional`,
+        whatsappMessage: `New handcrafted product available! ${transcription.substring(0, 50)}...`,
+        emailSubject: 'New Handcrafted Product Available',
+        pricingSuggestion: 'Contact for pricing'
+      };
+    }
+  } catch (error) {
+    console.error('Error generating product content from transcription:', error);
+    throw new Error('Failed to generate product content');
+  }
+};
+
+/**
  * Generate AI content using Vertex AI Gemini model (server-side only)
  */
 export const generateAIContentWithVertex = async (prompt: string, language: 'en' | 'hi' = 'en') => {
@@ -123,9 +199,7 @@ export const transcribeAudioWithVertex = async (audioBuffer: Buffer, mimeType: s
     
     // Check if Speech-to-Text client is initialized
     if (!speechClient) {
-      console.log('⚠️ Speech-to-Text client not initialized, using fallback');
-      // Return a fallback transcription for testing
-      return "This is a test transcription. The Google Cloud Speech-to-Text service is not configured. Please check your environment variables and service account setup.";
+      throw new Error('Speech-to-Text client not initialized. Check your Google Cloud credentials and environment variables.');
     }
     
     // Configure the recognition request
@@ -157,15 +231,14 @@ export const transcribeAudioWithVertex = async (audioBuffer: Buffer, mimeType: s
     
     console.log('✅ Transcription successful, length:', transcription.length);
     
-    return transcription || "No speech detected in the audio file.";
+    if (!transcription || transcription.trim() === '') {
+      throw new Error('No speech detected in the audio file. Please ensure the audio contains clear speech.');
+    }
+    
+    return transcription;
   } catch (error) {
     console.error('❌ Error transcribing audio with Speech-to-Text API:', error);
-    
-    // Return a fallback transcription for testing
-    const fallbackTranscription = `Test transcription result. The audio file was received successfully but Google Cloud Speech-to-Text encountered an error: ${error instanceof Error ? error.message : 'Unknown error'}. This is a fallback response for testing purposes.`;
-    
-    console.log('🔄 Returning fallback transcription for testing');
-    return fallbackTranscription;
+    throw new Error(`Failed to transcribe audio: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
 
