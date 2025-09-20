@@ -1,9 +1,8 @@
-// Test the transcription API with speech content
-const http = require('http');
-const fs = require('fs');
+// Test the deployed transcription API
+const https = require('https');
 const FormData = require('form-data');
 
-console.log('🧪 Testing Transcription API with Speech Content...\n');
+console.log('🧪 Testing Deployed Transcription API...\n');
 
 // Create a test audio file with speech simulation
 function createSpeechAudioFile() {
@@ -40,12 +39,12 @@ function createSpeechAudioFile() {
   return buffer;
 }
 
-async function testTranscriptionWithSpeech() {
+async function testDeployedAPI() {
   return new Promise((resolve, reject) => {
     console.log('📁 Creating speech audio file...');
     const audioBuffer = createSpeechAudioFile();
     
-    console.log('🔄 Testing transcription with speech content...');
+    console.log('🔄 Testing deployed transcription API...');
     
     const form = new FormData();
     form.append('audio', audioBuffer, {
@@ -55,16 +54,17 @@ async function testTranscriptionWithSpeech() {
     form.append('language', 'en-US');
     
     const options = {
-      hostname: 'localhost',
-      port: 3000,
+      hostname: 'aitrystt.vercel.app',
+      port: 443,
       path: '/api/transcribe/',
       method: 'POST',
       headers: form.getHeaders()
     };
     
-    const req = http.request(options, (res) => {
+    const req = https.request(options, (res) => {
       console.log('📡 Response received:');
       console.log('   - Status Code:', res.statusCode);
+      console.log('   - Headers:', res.headers);
       
       let data = '';
       
@@ -73,55 +73,59 @@ async function testTranscriptionWithSpeech() {
       });
       
       res.on('end', () => {
+        console.log('📄 Raw Response Length:', data.length);
+        console.log('📄 Raw Response Preview:', data.substring(0, 500));
+        
         try {
           const response = JSON.parse(data);
           
-          if (res.statusCode === 200 && response.transcription) {
-            console.log('✅ Transcription API: WORKING SUCCESSFULLY!');
-            console.log('   - API endpoint responding correctly');
-            console.log('   - Audio file processed successfully');
-            console.log('   - Transcription result received');
-            console.log('   - Transcription:', response.transcription);
-            console.log('   - Language:', response.language);
+          if (res.statusCode === 200) {
+            console.log('✅ API Response: SUCCESS');
             console.log('   - Success:', response.success);
+            console.log('   - Language:', response.language);
+            
+            if (response.transcription) {
+              console.log('✅ Transcription: WORKING');
+              console.log('   - Transcription:', response.transcription);
+            } else {
+              console.log('❌ Transcription: MISSING');
+            }
             
             if (response.productContent) {
-              console.log('✅ Product Content Generation: WORKING!');
+              console.log('✅ Product Content: WORKING');
               console.log('   - Title:', response.productContent.title);
               console.log('   - Description:', response.productContent.description?.substring(0, 100) + '...');
               console.log('   - Category:', response.productContent.category);
               console.log('   - Features:', response.productContent.features?.length || 0, 'features');
-              console.log('   - Keywords:', response.productContent.keywords?.join(', '));
             } else {
-              console.log('⚠️ Product Content: Not generated');
+              console.log('❌ Product Content: MISSING');
             }
             
             resolve(true);
           } else {
-            console.log('❌ Transcription API: FAILED');
+            console.log('❌ API Response: FAILED');
             console.log('   - Status Code:', res.statusCode);
-            console.log('   - Response:', response);
-            reject(new Error('API not working correctly'));
+            console.log('   - Error:', response.error);
+            console.log('   - Message:', response.message);
+            reject(new Error(`API failed with status ${res.statusCode}`));
           }
         } catch (error) {
-          console.log('❌ Transcription API: INVALID JSON RESPONSE');
-          console.log('   - Could not parse response as JSON');
-          console.log('   - Raw data:', data);
+          console.log('❌ API Response: INVALID JSON');
           console.log('   - Parse error:', error.message);
+          console.log('   - Raw data:', data);
           reject(error);
         }
       });
     });
     
     req.on('error', (error) => {
-      console.log('❌ Transcription API: NETWORK ERROR');
+      console.log('❌ API Request: NETWORK ERROR');
       console.log('   - Error:', error.message);
-      console.log('   - Make sure the dev server is running: npm run dev');
       reject(error);
     });
     
-    req.setTimeout(20000, () => {
-      console.log('❌ Transcription API: TIMEOUT');
+    req.setTimeout(30000, () => {
+      console.log('❌ API Request: TIMEOUT');
       reject(new Error('Request timeout'));
     });
     
@@ -132,29 +136,21 @@ async function testTranscriptionWithSpeech() {
 // Run the test
 async function runTest() {
   try {
-    console.log('🚀 Starting speech transcription test...\n');
+    console.log('🚀 Starting deployed API test...\n');
     
-    await testTranscriptionWithSpeech();
+    await testDeployedAPI();
     console.log('');
     
-    console.log('🎉 SPEECH TRANSCRIPTION TEST PASSED!');
-    console.log('\n📋 Test Summary:');
-    console.log('   ✅ API endpoint is working');
-    console.log('   ✅ Audio file processing works');
-    console.log('   ✅ Language parameter is supported');
-    console.log('   ✅ Response format is correct');
-    console.log('   ✅ Product content generation works');
-    console.log('\n🌐 Your transcription API is working with Google Cloud!');
-    console.log('   🔗 http://localhost:3000/api/transcribe');
+    console.log('🎉 DEPLOYED API TEST COMPLETED!');
     
   } catch (error) {
-    console.log('\n❌ SPEECH TRANSCRIPTION TEST FAILED');
+    console.log('\n❌ DEPLOYED API TEST FAILED');
     console.log('Error:', error.message);
-    console.log('\n🔧 Troubleshooting:');
-    console.log('   1. Make sure the dev server is running: npm run dev');
-    console.log('   2. Check that Google Cloud credentials are configured');
-    console.log('   3. Verify the API route exists: app/api/transcribe/route.ts');
-    console.log('   4. Check the server console for any errors');
+    console.log('\n🔧 Possible Issues:');
+    console.log('   1. Google Cloud credentials not configured on Vercel');
+    console.log('   2. Environment variables missing');
+    console.log('   3. API route not deployed correctly');
+    console.log('   4. Google Cloud services not enabled');
   }
 }
 

@@ -2,8 +2,22 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-// Explicitly set the service account key file path
-process.env.GOOGLE_APPLICATION_CREDENTIALS = 'C:/Users/afjal/Downloads/aitrystt/service-account-key.json';
+// Set up Google Cloud credentials
+// For local development, use the service account key file
+// For production (Vercel), use environment variables
+if (process.env.NODE_ENV === 'development' && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = 'C:/Users/afjal/Downloads/aitrystt/service-account-key.json';
+}
+
+// For production, we'll use the service account key from environment variables
+if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+  try {
+    const serviceAccountKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+    process.env.GOOGLE_APPLICATION_CREDENTIALS = JSON.stringify(serviceAccountKey);
+  } catch (error) {
+    console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY:', error);
+  }
+}
 
 // This file should only be imported on the server side
 import { VertexAI } from '@google-cloud/vertexai';
