@@ -1,0 +1,636 @@
+@import "tailwindcss";
+/* Removed problematic tw-animate-css import that was causing LightningCSS to fail */
+
+:root {
+  /* Enhanced Indian craft-inspired color palette */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  /* Improved muted-foreground contrast from 0.556 to 0.45 for better accessibility */
+  --muted-foreground: oklch(0.45 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+
+  /* Added comprehensive Indian craft color palette */
+  --terracotta: oklch(0.55 0.12 25);
+  --indigo: oklch(0.35 0.15 260);
+  --marigold: oklch(0.65 0.15 65);
+  --peepal-green: oklch(0.45 0.12 140);
+  --khadi: oklch(0.98 0.005 85);
+  --charcoal: oklch(0.25 0.02 280);
+
+  /* Added festival theme colors */
+  --diwali-gold: oklch(0.8 0.15 75);
+  --holi-pink: oklch(0.7 0.2 350);
+  --navratri-blue: oklch(0.4 0.18 250);
+  --eid-green: oklch(0.5 0.15 150);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  /* Improved dark mode muted-foreground contrast from 0.708 to 0.75 for better accessibility */
+  --muted-foreground: oklch(0.75 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --font-sans: var(--font-mukta);
+  --font-serif: var(--font-display);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+/* Enhanced typography classes for Indian craft theme */
+@layer components {
+  .craft-loader {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border: 3px solid oklch(var(--muted));
+    border-top: 3px solid oklch(var(--primary));
+    border-radius: 50%;
+    animation: pottery-spin 2s linear infinite;
+  }
+
+  .craft-loader::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    background: oklch(var(--accent));
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulse-glow 1.5s ease-in-out infinite;
+  }
+
+  .pottery-spinner {
+    animation: pottery-spin 3s linear infinite;
+  }
+
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .craft-texture {
+    position: relative;
+    background: linear-gradient(135deg, oklch(var(--background)) 0%, oklch(var(--khadi)) 100%);
+  }
+
+  .craft-texture::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: radial-gradient(circle at 25% 25%, oklch(var(--primary) / 0.03) 1px, transparent 1px),
+      radial-gradient(circle at 75% 75%, oklch(var(--accent) / 0.03) 1px, transparent 1px);
+    background-size: 24px 24px, 36px 36px;
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  /* Festival season special background gradient */
+  .festival-bg-gradient {
+    position: relative;
+    background: linear-gradient(135deg, oklch(var(--diwali-gold) / 0.1) 0%, oklch(var(--marigold) / 0.1) 50%, oklch(var(--holi-pink) / 0.1) 100%);
+  }
+
+  /* Festival special section gradient */
+  .festival-special-gradient {
+    background: linear-gradient(135deg, oklch(var(--diwali-gold) / 0.15) 0%, oklch(var(--marigold) / 0.15) 50%, oklch(var(--navratri-blue) / 0.15) 100%);
+  }
+
+  /* Diwali pattern for festive backgrounds */
+  .diwali-pattern {
+    background-image: 
+      radial-gradient(circle at 20% 20%, oklch(var(--diwali-gold) / 0.2) 2px, transparent 2px),
+      radial-gradient(circle at 80% 80%, oklch(var(--marigold) / 0.2) 2px, transparent 2px),
+      radial-gradient(circle at 50% 50%, oklch(var(--holi-pink) / 0.15) 1px, transparent 1px),
+      radial-gradient(circle at 30% 70%, oklch(var(--navratri-blue) / 0.15) 1px, transparent 1px);
+    background-size: 48px 48px, 64px 64px, 32px 32px, 40px 40px;
+  }
+
+  /* Festival badge styling */
+  .festival-badge {
+    box-shadow: 0 0 15px oklch(var(--diwali-gold) / 0.3), 0 0 30px oklch(var(--marigold) / 0.2);
+    animation: festival-glow 3s ease-in-out infinite alternate;
+  }
+
+  /* Festival card styling */
+  .festival-card {
+    border: 1px solid oklch(var(--diwali-gold) / 0.2);
+    background: linear-gradient(135deg, oklch(var(--background)) 0%, oklch(var(--khadi) / 0.5) 100%);
+  }
+
+  /* Festival feature card */
+  .festival-feature-card {
+    border: 1px solid oklch(var(--marigold) / 0.1);
+    background: linear-gradient(135deg, oklch(var(--card)) 0%, oklch(var(--khadi) / 0.3) 100%);
+  }
+
+  /* Festival special card */
+  .festival-special-card {
+    border: 1px solid oklch(var(--diwali-gold) / 0.3);
+    background: linear-gradient(135deg, oklch(var(--background)) 0%, oklch(var(--khadi) / 0.7) 100%);
+    box-shadow: 0 0 30px oklch(var(--diwali-gold) / 0.2), 0 0 60px oklch(var(--marigold) / 0.1);
+  }
+
+  /* Festival border for images */
+  .festival-border {
+    border: 2px solid oklch(var(--diwali-gold) / 0.1);
+    border-radius: var(--radius-lg);
+  }
+
+  /* Language card styling */
+  .language-card {
+    border: 1px solid oklch(var(--indigo) / 0.1);
+    background: linear-gradient(135deg, oklch(var(--card)) 0%, oklch(var(--khadi) / 0.2) 100%);
+    transition: all 0.3s ease;
+  }
+
+  .language-card:hover {
+    border-color: oklch(var(--diwali-gold) / 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px oklch(var(--diwali-gold) / 0.1);
+  }
+
+  .ajrakh-pattern {
+    background-image: radial-gradient(circle at 20% 20%, oklch(var(--terracotta) / 0.08) 2px, transparent 2px),
+      radial-gradient(circle at 80% 80%, oklch(var(--indigo) / 0.08) 2px, transparent 2px),
+      radial-gradient(circle at 50% 50%, oklch(var(--marigold) / 0.05) 1px, transparent 1px);
+    background-size: 48px 48px, 64px 64px, 32px 32px;
+  }
+
+  .warli-stroke {
+    position: relative;
+  }
+
+  .warli-stroke::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(var(--terracotta)) 15%,
+      oklch(var(--marigold)) 35%,
+      oklch(var(--peepal-green)) 50%,
+      oklch(var(--indigo)) 65%,
+      oklch(var(--terracotta)) 85%,
+      transparent 100%
+    );
+    border-radius: 2px;
+    opacity: 0.7;
+  }
+
+  .block-print-bg {
+    background-image: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 8px,
+        oklch(var(--primary) / 0.02) 8px,
+        oklch(var(--primary) / 0.02) 16px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 8px,
+        oklch(var(--accent) / 0.02) 8px,
+        oklch(var(--accent) / 0.02) 16px
+      );
+  }
+
+  .festival-glow {
+    box-shadow: 0 0 20px oklch(var(--diwali-gold) / 0.3), 0 0 40px oklch(var(--marigold) / 0.2), inset 0 1px 0
+      oklch(var(--background) / 0.2);
+  }
+
+  .craft-card {
+    background: oklch(var(--card));
+    border: 1px solid oklch(var(--border));
+    border-radius: var(--radius-lg);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .craft-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, oklch(var(--primary) / 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .craft-card:hover::before {
+    left: 100%;
+  }
+
+  .craft-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px oklch(var(--primary) / 0.15);
+  }
+
+  /* Enhanced craft corners for feature cards */
+  .craft-corners {
+    position: relative;
+  }
+
+  .craft-corners::before,
+  .craft-corners::after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid oklch(var(--primary) / 0.3);
+  }
+
+  .craft-corners::before {
+    top: 8px;
+    left: 8px;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+  }
+
+  .craft-corners::after {
+    bottom: 8px;
+    right: 8px;
+    border-left: none;
+    border-top: none;
+    border-bottom-right-radius: 8px;
+  }
+
+  /* Enhanced ink spread focus ring for inputs */
+  .ink-spread-focus {
+    transition: all 0.3s ease;
+    position: relative;
+  }
+
+  .ink-spread-focus:focus {
+    outline: 2px solid oklch(var(--primary) / 0.6);
+    outline-offset: 2px;
+    background: oklch(var(--primary) / 0.05);
+    box-shadow: 0 0 0 4px oklch(var(--primary) / 0.1);
+  }
+
+  /* Block-print dots confetti alternative */
+  .dots-celebration {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dots-celebration::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background-image: radial-gradient(circle at 20% 20%, oklch(var(--terracotta)) 2px, transparent 2px),
+      radial-gradient(circle at 40% 60%, oklch(var(--marigold)) 1.5px, transparent 1.5px),
+      radial-gradient(circle at 80% 30%, oklch(var(--peepal-green)) 2px, transparent 2px),
+      radial-gradient(circle at 60% 80%, oklch(var(--indigo)) 1px, transparent 1px);
+    background-size: 40px 40px, 60px 60px, 50px 50px, 30px 30px;
+    opacity: 0;
+    animation: dots-fall 2s ease-out;
+    pointer-events: none;
+  }
+
+  .dots-celebration.active::before {
+    animation: dots-fall 2s ease-out;
+  }
+
+  /* Enhanced toast styling */
+  .craft-toast {
+    background: linear-gradient(135deg, oklch(var(--card)) 0%, oklch(var(--khadi)) 100%);
+    border: 1px solid oklch(var(--border));
+    border-left: 4px solid oklch(var(--accent));
+    border-radius: var(--radius-lg);
+    box-shadow: 0 8px 25px oklch(var(--primary) / 0.15);
+  }
+
+  /* Regional theme presets */
+  .theme-ajrakh {
+    --primary: oklch(0.35 0.15 260); /* Indigo */
+    --accent: oklch(0.65 0.15 65); /* Marigold */
+    --pattern-divider: var(--ajrakh-pattern);
+  }
+
+  .theme-warli {
+    --primary: oklch(0.25 0.02 280); /* Charcoal */
+    --accent: oklch(0.98 0.005 85); /* Khadi */
+    --pattern-divider: var(--warli-stroke);
+  }
+
+  .theme-kalamkari {
+    --primary: oklch(0.45 0.12 140); /* Peepal Green */
+    --accent: oklch(0.7 0.2 350); /* Lotus Pink */
+    --pattern-divider: var(--leaf-divider);
+  }
+
+  /* Enhanced hover lift effect */
+  .hover-lift {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px oklch(var(--primary) / 0.15), 0 4px 12px oklch(var(--accent) / 0.1);
+  }
+
+  /* Minimum tap target size for accessibility */
+  .tap-target {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Enhanced craft dividers */
+  .hr-craft {
+    height: 3px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      oklch(var(--terracotta)) 15%,
+      oklch(var(--marigold)) 35%,
+      oklch(var(--peepal-green)) 50%,
+      oklch(var(--indigo)) 65%,
+      oklch(var(--terracotta)) 85%,
+      transparent 100%
+    );
+    border: none;
+    border-radius: 2px;
+    margin: 2rem 0;
+  }
+
+  /* Enhanced badge styling */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: oklch(var(--primary) / 0.1);
+    color: oklch(var(--primary));
+    border: 1px solid oklch(var(--primary) / 0.2);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+}
+
+/* Added new keyframe animations for enhanced microinteractions */
+@keyframes dots-fall {
+  0% {
+    opacity: 0;
+    transform: translateY(-100%) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0%) rotate(180deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%) rotate(360deg);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pottery-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Festival glow animation */
+@keyframes festival-glow {
+  0% {
+    box-shadow: 0 0 15px oklch(var(--diwali-gold) / 0.3), 0 0 30px oklch(var(--marigold) / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px oklch(var(--diwali-gold) / 0.4), 0 0 40px oklch(var(--marigold) / 0.3), 0 0 60px oklch(var(--holi-pink) / 0.2);
+  }
+  100% {
+    box-shadow: 0 0 15px oklch(var(--diwali-gold) / 0.3), 0 0 30px oklch(var(--marigold) / 0.2);
+  }
+}
+
+/* Added enhanced responsive utilities */
+@layer utilities {
+  .craft-primary {
+    color: oklch(var(--primary));
+  }
+
+  .bg-terracotta {
+    background-color: oklch(var(--terracotta));
+  }
+
+  .bg-indigo {
+    background-color: oklch(var(--indigo));
+  }
+
+  .bg-marigold {
+    background-color: oklch(var(--marigold));
+  }
+
+  .bg-peepal-green {
+    background-color: oklch(var(--peepal-green));
+  }
+
+  .bg-craft-primary {
+    background-color: oklch(var(--primary));
+  }
+
+  .text-terracotta {
+    color: oklch(var(--terracotta));
+  }
+
+  .text-indigo {
+    color: oklch(var(--indigo));
+  }
+
+  .text-marigold {
+    color: oklch(var(--marigold));
+  }
+
+  .text-peepal-green {
+    color: oklch(var(--peepal-green));
+  }
+
+  .text-charcoal {
+    color: oklch(var(--charcoal));
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .container-craft {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-spacing {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+
+  .card-spacing {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+
+  .font-heading {
+    font-family: var(--font-display), var(--font-poppins), system-ui, sans-serif;
+    font-weight: 600;
+  }
+}
