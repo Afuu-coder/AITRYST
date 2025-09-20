@@ -155,10 +155,31 @@ export default function VoiceRecording() {
     const file = e.target.files?.[0]
     if (!file) return
 
+    // Validate file type
+    if (!file.type.startsWith('audio/')) {
+      toast.error("Please select a valid audio file")
+      return
+    }
+
+    // Validate file size (max 25MB)
+    if (file.size > 25 * 1024 * 1024) {
+      toast.error("Audio file size must be less than 25MB")
+      return
+    }
+
     const url = URL.createObjectURL(file)
     setAudioBlob(file)
     setAudioUrl(url)
     setRecordingTime(Math.floor(file.size / 10000)) // Approximate duration
+    
+    // Reset previous results
+    setTranscription("")
+    setGeneratedContent(null)
+    setEditableContent(null)
+    setProcessingSteps([])
+    setCurrentStep(0)
+    
+    toast.success("Audio file uploaded successfully!")
   }
 
   const transcribeAndGenerate = useCallback(async () => {
@@ -182,13 +203,28 @@ export default function VoiceRecording() {
       const startTime = Date.now()
       const selectedLang = languages.find(lang => lang.code === selectedLanguage)
       const languageCode = selectedLang?.apiCode || 'hi-IN'
-      const result = await transcribeAudioFile(audioBlob, languageCode)
       
-      if (!result) {
+      // Create FormData for the API call
+      const formData = new FormData()
+      formData.append('audio', audioBlob, 'recording.webm')
+      formData.append('language', languageCode)
+      
+      const response = await fetch('/api/transcribe', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const result = await response.json()
+      
+      if (!result || !result.transcription) {
         throw new Error("Failed to get transcription")
       }
       
-      setTranscription(result)
+      setTranscription(result.transcription)
       steps[0].status = 'completed'
       steps[0].duration = Date.now() - startTime
       setProcessingSteps([...steps])
@@ -227,7 +263,7 @@ export default function VoiceRecording() {
       setIsTranscribing(false)
       setIsGenerating(false)
     }
-  }, [audioBlob, transcribeAudioFile])
+  }, [audioBlob, selectedLanguage])
 
   const generateProductContent = async (transcription: string): Promise<GeneratedContent> => {
     const selectedLang = languages.find(lang => lang.code === selectedLanguage)
