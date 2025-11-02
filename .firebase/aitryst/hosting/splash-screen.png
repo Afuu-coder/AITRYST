@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#8B4513"/>
-  <circle cx="256" cy="256" r="160" fill="#FFD700"/>
-  <path d="M256 96 L320 224 L448 224 L352 320 L384 448 L256 384 L128 448 L160 320 L64 224 L192 224 Z" fill="#8B4513"/>
-  <text x="256" y="480" font-family="Arial, sans-serif" font-size="48" fill="white" text-anchor="middle">AITRYST</text>
-</svg>
