@@ -3,19 +3,29 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Set up Google Cloud credentials
-// For local development, use the service account key file
-// For production (Vercel), use environment variables
-if (process.env.NODE_ENV === 'development' && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = 'C:/Users/afjal/Downloads/aitrystt/service-account-key.json';
-}
+// Use the service account key file directly for both development and production
+const fs = require('fs');
+const path = require('path');
 
-// For production, we'll use the service account key from environment variables
-if (process.env.NODE_ENV === 'production' && process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
-  try {
-    const serviceAccountKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
-    process.env.GOOGLE_APPLICATION_CREDENTIALS = JSON.stringify(serviceAccountKey);
-  } catch (error) {
-    console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY:', error);
+// Always try to use the service account key file first
+const keyPath = path.join(process.cwd(), 'service-account-key.json');
+if (fs.existsSync(keyPath)) {
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = keyPath;
+  console.log('✅ Using service account key file:', keyPath);
+} else {
+  console.warn('⚠️  Service account key file not found at:', keyPath);
+  
+  // Fallback to environment variable for production
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_KEY) {
+    try {
+      const serviceAccountKey = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY);
+      process.env.GOOGLE_APPLICATION_CREDENTIALS = JSON.stringify(serviceAccountKey);
+      console.log('✅ Using service account key from environment variable');
+    } catch (error) {
+      console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_KEY:', error);
+    }
+  } else {
+    console.warn('⚠️  No Google Cloud credentials found. Google Cloud services may not work.');
   }
 }
 
@@ -25,7 +35,7 @@ import speech from '@google-cloud/speech';
 import vision from '@google-cloud/vision';
 
 // Check if required environment variables are set
-const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID;
+const projectId = process.env.GOOGLE_CLOUD_PROJECT_ID || 'craftai-476916';
 const region = process.env.GOOGLE_CLOUD_REGION || 'us-central1';
 
 console.log('Initializing Google Cloud services with project ID:', projectId);
@@ -76,7 +86,7 @@ if (projectId) {
 /**
  * Generate product content from transcription using Vertex AI Gemini model (server-side only)
  */
-export const generateProductContentFromTranscription = async (transcription: string, language: 'en' | 'hi' = 'en') => {
+export const generateProductContentFromTranscription = async (transcription: string, language: 'en' | 'hi' | 'bn' | 'te' = 'en') => {
   try {
     // Check if Vertex AI is initialized
     if (!textModel) {
@@ -84,64 +94,84 @@ export const generateProductContentFromTranscription = async (transcription: str
     }
     
     // Add language-specific instructions
-    const languageInstruction = language === 'hi' 
-      ? 'Respond in Hindi language.' 
-      : 'Respond in English language.';
+    let languageInstruction = 'Respond ONLY in English language. Do not mix any other languages.';
+    if (language === 'hi') {
+      languageInstruction = 'Respond ONLY in Hindi language. Do not mix any other languages.';
+    } else if (language === 'bn') {
+      languageInstruction = 'Respond ONLY in Bengali language. Do not mix any other languages.';
+    } else if (language === 'te') {
+      languageInstruction = 'Respond ONLY in Telugu language. Do not mix any other languages.';
+    }
       
-    const prompt = `Based on the following audio transcription of a product description, generate professional product content for e-commerce:
+    const prompt = `You are an expert e-commerce product writer. Based on the audio transcription below, create a compelling product title and detailed description for online sales.
 
 Transcription: "${transcription}"
 
-Please analyze this transcription and create:
-
 ${languageInstruction}
 
-Format your response as JSON with the following structure:
+IMPORTANT INSTRUCTIONS:
+- Create a catchy, SEO-friendly product title (max 60 characters)
+- Write a detailed, engaging product description that highlights key features and benefits
+- Use professional e-commerce language
+- Make it appealing to potential customers
+- Focus on the product's unique selling points
+- Use proper grammar and formatting
+- Do not include the original transcription text in the description
+- Create original, compelling content based on the transcription
+
+EXAMPLE FORMAT:
 {
-  "title": "A compelling product title (max 60 characters)",
-  "description": "A detailed product description highlighting key features and benefits",
-  "shortDescription": "A brief description for product cards (max 150 characters)",
-  "features": ["Feature 1", "Feature 2", "Feature 3"],
-  "benefits": ["Benefit 1", "Benefit 2", "Benefit 3"],
-  "keywords": ["keyword1", "keyword2", "keyword3"],
-  "category": "Product category",
-  "tags": ["tag1", "tag2", "tag3"],
-  "socialMediaPost": "A social media post for marketing",
-  "whatsappMessage": "A WhatsApp message for sharing",
-  "emailSubject": "Email subject line for marketing",
-  "pricingSuggestion": "Suggested pricing based on description"
+  "title": "Premium Handcrafted Pashmina Shawl",
+  "description": "Experience the luxury of authentic Kashmiri craftsmanship with this exquisite pashmina shawl. Made from the finest Himalayan goat wool, this premium accessory offers unparalleled softness and warmth. Perfect for special occasions or everyday elegance, it features traditional patterns and superior quality that reflects centuries of artisan expertise."
+}
+
+Respond with ONLY a JSON object in this format:
+{
+  "title": "Your compelling product title",
+  "description": "Your detailed product description with features and benefits"
 }`;
 
     const result = await textModel.generateContent(prompt);
     const response = await result.response;
     const text = response.candidates?.[0]?.content?.parts?.[0]?.text || '';
     
+    console.log('🔍 Raw AI response:', text);
+    
+    // Clean the response text to extract JSON
+    let cleanedText = text.trim();
+    
+    // Remove any markdown code blocks if present
+    if (cleanedText.startsWith('```json')) {
+      cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+    } else if (cleanedText.startsWith('```')) {
+      cleanedText = cleanedText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+    }
+    
+    // Try to find JSON object in the response
+    const jsonMatch = cleanedText.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleanedText = jsonMatch[0];
+    }
+    
+    console.log('🧹 Cleaned response:', cleanedText);
+    
     // Try to parse as JSON, fallback to structured response if parsing fails
     try {
-      const productContent = JSON.parse(text);
+      const productContent = JSON.parse(cleanedText);
       
       // Validate the response structure
       if (productContent && productContent.title && productContent.description) {
+        console.log('✅ Successfully parsed product content:', productContent);
         return productContent;
       } else {
+        console.log('❌ Invalid product content structure:', productContent);
         throw new Error('Invalid product content structure');
       }
-    } catch {
-      // If JSON parsing fails, return a structured response
-      return {
-        title: 'Handcrafted Product',
-        description: `This beautiful handcrafted product was described as: "${transcription}". It features traditional craftsmanship and authentic design, perfect for those who appreciate quality and artistry.`,
-        shortDescription: 'Authentic handcrafted product with traditional design',
-        features: ['Handcrafted', 'Traditional Design', 'High Quality'],
-        benefits: ['Unique', 'Authentic', 'Durable'],
-        keywords: ['handcrafted', 'traditional', 'artisan'],
-        category: 'Handcrafted Items',
-        tags: ['handmade', 'traditional', 'artisan'],
-        socialMediaPost: `Check out this amazing handcrafted product! ${transcription.substring(0, 100)}... #handcrafted #artisan #traditional`,
-        whatsappMessage: `New handcrafted product available! ${transcription.substring(0, 50)}...`,
-        emailSubject: 'New Handcrafted Product Available',
-        pricingSuggestion: 'Contact for pricing'
-      };
+    } catch (parseError) {
+      console.log('❌ JSON parsing failed:', parseError);
+      console.log('📝 Attempted to parse:', cleanedText);
+      const errorMessage = parseError instanceof Error ? parseError.message : String(parseError);
+      throw new Error(`Failed to parse AI response as JSON: ${errorMessage}`);
     }
   } catch (error) {
     console.error('Error generating product content from transcription:', error);
@@ -217,14 +247,17 @@ export const transcribeAudioWithVertex = async (audioBuffer: Buffer, mimeType: s
     }
     
     // Configure the recognition request
+    const encoding = getEncodingFromMimeType(mimeType);
     const config: any = {
-      encoding: getEncodingFromMimeType(mimeType),
-      sampleRateHertz: 16000,
+      encoding,
       languageCode: languageCode,
       enableAutomaticPunctuation: true,
       enableWordTimeOffsets: false,
-      model: 'latest_long',
     };
+    // Only set sampleRateHertz for LINEAR16 raw PCM; for compressed formats like OPUS, omit it
+    if (encoding === 'LINEAR16') {
+      config.sampleRateHertz = 16000;
+    }
     
     const audio: any = {
       content: audioBuffer.toString('base64'),
@@ -643,7 +676,16 @@ function getEncodingFromMimeType(mimeType: string): any {
       return 'OGG_OPUS';
     case 'audio/mpeg':
       return 'MP3';
+    case 'audio/webm':
+      return 'WEBM_OPUS';
     default:
+      // Handle mime types with parameters, e.g., 'audio/webm;codecs=opus'
+      if (mimeType && mimeType.toLowerCase().includes('webm')) {
+        return 'WEBM_OPUS';
+      }
+      if (mimeType && mimeType.toLowerCase().includes('ogg')) {
+        return 'OGG_OPUS';
+      }
       return 'LINEAR16'; // Default to LINEAR16
   }
 }

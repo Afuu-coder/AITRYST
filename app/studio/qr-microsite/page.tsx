@@ -97,8 +97,8 @@ export default function QRMicrosite() {
         formData.append('productImage', productImage)
       }
 
-      // Create product using Google Cloud services
-      const response = await fetch('/api/create-product', {
+      // Create product using Vercel Blob
+      const response = await fetch('/api/create-product-vercel', {
         method: 'POST',
         body: formData, // Use FormData instead of JSON for file upload
       })
@@ -115,7 +115,10 @@ export default function QRMicrosite() {
         setMicrositeUrl(result.micrositeUrl)
         setWhatsappLink(result.whatsappLink)
         
-        toast.success("🎉 QR Microsite created successfully with Google Cloud!")
+        // Save product data to localStorage for microsite access
+        localStorage.setItem(`microsite_${result.productId}`, JSON.stringify(result.productData))
+        
+        toast.success("🎉 QR Microsite created successfully!")
       } else {
         throw new Error(result.error || 'Failed to create product')
       }

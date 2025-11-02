@@ -7,24 +7,31 @@ import path from 'path'
 let visionClient: ImageAnnotatorClient
 
 try {
-  // Set the environment variable for Google Cloud authentication
-  const keyPath = path.join(process.cwd(), 'service-account-key.json')
-  process.env.GOOGLE_APPLICATION_CREDENTIALS = keyPath
-  
-  // Try to read the service account key file
-  const keyFile = fs.readFileSync(keyPath, 'utf8')
-  const credentials = JSON.parse(keyFile)
-  
-  visionClient = new ImageAnnotatorClient({
-    projectId: credentials.project_id || 'artisan-ai-472017',
-    credentials: credentials
-  })
-  console.log('✅ Google Cloud Vision client initialized successfully')
+  // Try to get credentials from environment variable first (for Vercel)
+  if (process.env.GOOGLE_CLOUD_CREDENTIALS) {
+    const credentials = JSON.parse(process.env.GOOGLE_CLOUD_CREDENTIALS)
+    visionClient = new ImageAnnotatorClient({
+      projectId: credentials.project_id || process.env.GOOGLE_CLOUD_PROJECT_ID || 'craftai-476916',
+      credentials: credentials
+    })
+    console.log('✅ Google Cloud Vision client initialized from environment variable')
+  } else {
+    // Fallback to file for local development
+    const keyPath = path.join(process.cwd(), 'service-account-key.json')
+    const keyFile = fs.readFileSync(keyPath, 'utf8')
+    const credentials = JSON.parse(keyFile)
+    
+    visionClient = new ImageAnnotatorClient({
+      projectId: credentials.project_id || 'craftai-476916',
+      credentials: credentials
+    })
+    console.log('✅ Google Cloud Vision client initialized from file')
+  }
 } catch (error) {
   console.error('❌ Failed to initialize Vision Client:', error)
   // Fallback initialization
   visionClient = new ImageAnnotatorClient({
-    projectId: 'artisan-ai-472017',
+    projectId: process.env.GOOGLE_CLOUD_PROJECT_ID || 'craftai-476916',
   })
 }
 

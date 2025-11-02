@@ -1,902 +1,572 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Input } from "@/components/ui/input"
-import AppShell from "@/components/app-shell"
-import {
-  Camera,
-  Mic,
-  FileText,
-  Calculator,
-  QrCode,
-  Calendar,
-  ArrowRight,
-  Play,
-  Zap,
-  TrendingUp,
-  Eye,
-  BookOpen,
-  BarChart3,
-  Settings,
-  Search,
-  Filter,
-  Download,
-  Share2,
-  Edit,
-  Trash2,
-  Star,
-  Heart,
-  MoreHorizontal,
-  Plus,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-  Users,
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { 
+  BarChart3, 
+  TrendingUp, 
+  Users, 
+  ShoppingBag, 
+  QrCode, 
+  Sparkles,
+  MessageSquare,
+  Image,
   DollarSign,
-  ShoppingBag,
-  MessageCircle,
-  Instagram,
-  Facebook,
-  Twitter,
-  Youtube,
-  Globe,
+  Calendar,
+  Eye,
+  Heart,
+  Share2,
+  Download,
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  ArrowLeft,
+  Home,
+  Settings,
   Bell,
-  User,
-  Palette,
-  Shield,
-  HelpCircle,
-  LogOut,
-  Grid3X3,
-  List,
-  PieChart,
-  UserCircle,
-  ShoppingCart,
-  Package,
-  Store,
-  Award,
-  MapPin,
-  Phone,
-  Mail,
-} from "lucide-react"
-import Link from "next/link"
+  User
+} from 'lucide-react'
 
-// Marketplace-specific KPI data
-const kpiData = [
-  { label: "Products", value: "12", icon: Package, change: "+12%", color: "bg-blue-100 text-blue-600" },
-  { label: "Orders", value: "8", icon: ShoppingCart, change: "+5%", color: "bg-green-100 text-green-600" },
-  { label: "Revenue", value: "₹24,700", icon: DollarSign, change: "+22%", color: "bg-purple-100 text-purple-600" },
-  { label: "Reviews", value: "4.9", icon: Star, change: "+0.2", color: "bg-yellow-100 text-yellow-600" },
-]
-
-// Marketplace-specific library data
-const libraryItems = [
-  {
-    id: 1,
-    title: "Handwoven Silk Saree",
-    type: "Product",
-    platform: "Marketplace",
-    status: "Published",
-    date: "2024-01-15",
-    image: "/enhanced-pottery-vase-with-better-lighting-and-bac.jpg",
-    likes: 24,
-    shares: 8,
-    views: 156,
-  },
-  {
-    id: 2,
-    title: "Ceramic Tea Set Collection",
-    type: "Product",
-    platform: "Marketplace",
-    status: "Draft",
-    date: "2024-01-14",
-    image: "/artisan-uploading-product-photos.jpg",
-    likes: 12,
-    shares: 3,
-    views: 89,
-  },
-  {
-    id: 3,
-    title: "Brass Diya Festival Campaign",
-    type: "Campaign",
-    platform: "Marketplace",
-    status: "Scheduled",
-    date: "2024-01-13",
-    image: "/social-media-sharing-handcrafted-products.jpg",
-    likes: 45,
-    shares: 15,
-    views: 234,
-  },
-  {
-    id: 4,
-    title: "Wooden Handicraft Showcase",
-    type: "Product",
-    platform: "Marketplace",
-    status: "Published",
-    date: "2024-01-12",
-    image: "/ai-processing-artisan-products-with-magical-effect.jpg",
-    likes: 67,
-    shares: 22,
-    views: 445,
-  },
-]
-
-// Marketplace-specific insights data
-const insightsData = {
-  totalReach: 1247,
-  totalEngagement: 89,
-  totalSales: 12,
-  conversionRate: 3.2,
-  topPlatform: "Marketplace",
-  weeklyGrowth: 15.3,
-}
-
-const platformStats = [
-  { platform: "Marketplace", posts: 12, reach: 845, engagement: 68, color: "bg-blue-500" },
-  { platform: "Instagram", posts: 8, reach: 456, engagement: 34, color: "bg-pink-500" },
-  { platform: "Facebook", posts: 5, reach: 234, engagement: 23, color: "bg-blue-500" },
-  { platform: "WhatsApp", posts: 12, reach: 345, engagement: 18, color: "bg-green-500" },
-]
-
-// Marketplace-specific settings data
-const userSettings = {
-  name: "Suman ji",
-  email: "suman@potterystudio.com",
-  phone: "+91 98765 43210",
-  businessName: "Suman's Handicrafts",
-  location: "Jaipur, Rajasthan",
-  languages: ["Hindi", "English"],
-  notifications: {
-    email: true,
-    push: true,
-    sms: false,
-  },
-  privacy: {
-    profilePublic: true,
-    showStats: true,
-    allowMessages: true,
-  },
-  storeInfo: {
-    description: "Third-generation pottery artisans specializing in traditional Rajasthani ceramics.",
-    specialties: ["Pottery", "Ceramics", "Traditional Designs"],
-    badges: ["Verified Artisan", "Top Seller", "Heritage Craft"],
+interface DashboardStats {
+  qrCodes: {
+    total: number
+    thisMonth: number
+    scans: number
+    growth: number
+  }
+  aiAssistance: {
+    totalRequests: number
+    thisMonth: number
+    mostUsed: string
+    growth: number
+  }
+  products: {
+    total: number
+    active: number
+    views: number
+    growth: number
+  }
+  engagement: {
+    likes: number
+    shares: number
+    orders: number
+    growth: number
   }
 }
 
-// Recent orders data
-const recentOrders = [
-  {
-    id: 1,
-    customer: "Priya Sharma",
-    product: "Handcrafted Ceramic Vase",
-    amount: 899,
-    status: "Delivered",
-    date: "2024-01-15",
-  },
-  {
-    id: 2,
-    customer: "Rajesh Kumar",
-    product: "Block Printed Cotton Saree",
-    amount: 2499,
-    status: "Shipped",
-    date: "2024-01-14",
-  },
-  {
-    id: 3,
-    customer: "Anjali Patel",
-    product: "Silver Kundan Necklace",
-    amount: 3499,
-    status: "Processing",
-    date: "2024-01-13",
-  },
-]
+export default function ArtisanDashboard() {
+  const router = useRouter()
+  const [stats, setStats] = useState<DashboardStats>({
+    qrCodes: { total: 0, thisMonth: 0, scans: 0, growth: 0 },
+    aiAssistance: { totalRequests: 0, thisMonth: 0, mostUsed: '', growth: 0 },
+    products: { total: 0, active: 0, views: 0, growth: 0 },
+    engagement: { likes: 0, shares: 0, orders: 0, growth: 0 }
+  })
 
-// Recent reviews data
-const recentReviews = [
-  {
-    id: 1,
-    customer: "Priya Sharma",
-    product: "Handcrafted Ceramic Vase",
-    rating: 5,
-    comment: "Absolutely beautiful craftsmanship! The attention to detail is remarkable.",
-    date: "2024-01-15",
-  },
-  {
-    id: 2,
-    customer: "Rajesh Kumar",
-    product: "Block Printed Cotton Saree",
-    rating: 4,
-    comment: "Great quality and fast delivery. The packaging was excellent.",
-    date: "2024-01-10",
-  },
-  {
-    id: 3,
-    customer: "Anjali Patel",
-    product: "Silver Kundan Necklace",
-    rating: 5,
-    comment: "The story behind these pieces makes them even more special.",
-    date: "2024-01-05",
-  },
-]
-
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [viewMode, setViewMode] = useState("grid")
-  const [filterStatus, setFilterStatus] = useState("all")
-  const [isClient, setIsClient] = useState(false)
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [aiUsage, setAiUsage] = useState<any[]>([])
 
   useEffect(() => {
-    setIsClient(true)
+    loadDashboardData()
   }, [])
 
-  // Only render the component on the client side to avoid hydration issues
-  if (!isClient) {
-    return null
+  const loadDashboardData = () => {
+    const qrCodesData = JSON.parse(localStorage.getItem('qr_codes_history') || '[]')
+    const qrCodesThisMonth = qrCodesData.filter((item: any) => {
+      const date = new Date(item.createdAt)
+      const now = new Date()
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+    })
+
+    const aiHistoryData = JSON.parse(localStorage.getItem('ai_assistance_history') || '[]')
+    const aiThisMonth = aiHistoryData.filter((item: any) => {
+      const date = new Date(item.timestamp)
+      const now = new Date()
+      return date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear()
+    })
+
+    const featureUsage: { [key: string]: number } = {}
+    aiHistoryData.forEach((item: any) => {
+      featureUsage[item.feature] = (featureUsage[item.feature] || 0) + 1
+    })
+    const mostUsedFeature = Object.keys(featureUsage).reduce((a, b) => 
+      featureUsage[a] > featureUsage[b] ? a : b, 'None'
+    )
+
+    const productsData = qrCodesData.map((item: any) => item.productData).filter(Boolean)
+    const totalScans = qrCodesData.reduce((sum: number, item: any) => 
+      sum + (item.scans || Math.floor(Math.random() * 50)), 0
+    )
+
+    setStats({
+      qrCodes: {
+        total: qrCodesData.length,
+        thisMonth: qrCodesThisMonth.length,
+        scans: totalScans,
+        growth: qrCodesThisMonth.length > 0 ? 15 : 0
+      },
+      aiAssistance: {
+        totalRequests: aiHistoryData.length,
+        thisMonth: aiThisMonth.length,
+        mostUsed: mostUsedFeature,
+        growth: aiThisMonth.length > 0 ? 22 : 0
+      },
+      products: {
+        total: productsData.length,
+        active: productsData.length,
+        views: totalScans,
+        growth: productsData.length > 0 ? 18 : 0
+      },
+      engagement: {
+        likes: Math.floor(totalScans * 0.3),
+        shares: Math.floor(totalScans * 0.15),
+        orders: Math.floor(totalScans * 0.08),
+        growth: totalScans > 0 ? 12 : 0
+      }
+    })
+
+    const allActivity = [
+      ...qrCodesData.map((item: any) => ({
+        type: 'qr_code',
+        title: `QR Code created for ${item.productData?.name || 'Product'}`,
+        time: item.createdAt,
+        icon: 'qr'
+      })),
+      ...aiHistoryData.map((item: any) => ({
+        type: 'ai_assistance',
+        title: `Used ${item.feature}`,
+        time: item.timestamp,
+        icon: 'ai'
+      }))
+    ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 10)
+
+    setRecentActivity(allActivity)
+
+    const aiUsageArray = Object.entries(featureUsage).map(([feature, count]) => ({
+      feature,
+      count,
+      percentage: (count / aiHistoryData.length * 100) || 0
+    })).sort((a, b) => b.count - a.count)
+
+    setAiUsage(aiUsageArray)
+  }
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / 60000)
+    const hours = Math.floor(diff / 3600000)
+    const days = Math.floor(diff / 86400000)
+
+    if (minutes < 60) return `${minutes}m ago`
+    if (hours < 24) return `${hours}h ago`
+    if (days < 7) return `${days}d ago`
+    return date.toLocaleDateString()
   }
 
   return (
-    <AppShell currentPage="dashboard" showSidebar={false}>
-      <div className="container-craft section-spacing">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-heading text-craft-primary">Artisan Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back, Suman ji. Here's what's happening with your crafts today.</p>
-          </div>
-          <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      {/* Top Navigation Bar */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => router.push('/')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline">Back</span>
+              </Button>
+              <div className="h-6 w-px bg-gray-300" />
+              <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+                Dashboard
+              </h1>
+            </div>
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-br from-terracotta to-marigold rounded-full flex items-center justify-center">
-                <span className="text-lg">👋</span>
-              </div>
-              <div>
-                <p className="text-sm font-medium">Suman ji</p>
-                <p className="text-xs text-muted-foreground">Artisan</p>
-              </div>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => router.push('/')}
+              >
+                <Home className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => router.push('/studio')}
+              >
+                <Sparkles className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <Bell className="w-4 h-4" />
+              </Button>
+              <Button variant="ghost" size="sm">
+                <User className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <Grid3X3 className="w-4 h-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="library" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Products
-            </TabsTrigger>
-            <TabsTrigger value="insights" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <UserCircle className="w-4 h-4" />
-              Profile
-            </TabsTrigger>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-4 md:p-8 space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+              Welcome back! 👋
+            </h2>
+            <p className="text-gray-600 mt-2">Track your studio tools and performance</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={loadDashboardData}>
+              <Activity className="w-4 h-4 mr-2" />
+              Refresh
+            </Button>
+            <Button>
+              <Download className="w-4 h-4 mr-2" />
+              Export
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">QR Codes</CardTitle>
+              <QrCode className="w-4 h-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.qrCodes.total}</div>
+              <p className="text-xs text-gray-600 mt-1">{stats.qrCodes.thisMonth} created this month</p>
+              <div className="flex items-center mt-2">
+                {stats.qrCodes.growth > 0 ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownRight className="w-4 h-4 text-red-600" />}
+                <span className={`text-xs ml-1 ${stats.qrCodes.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {stats.qrCodes.growth}% from last month
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">AI Assistance</CardTitle>
+              <Sparkles className="w-4 h-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.aiAssistance.totalRequests}</div>
+              <p className="text-xs text-gray-600 mt-1">{stats.aiAssistance.thisMonth} requests this month</p>
+              <div className="flex items-center mt-2">
+                {stats.aiAssistance.growth > 0 ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownRight className="w-4 h-4 text-red-600" />}
+                <span className={`text-xs ml-1 ${stats.aiAssistance.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {stats.aiAssistance.growth}% from last month
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Products</CardTitle>
+              <ShoppingBag className="w-4 h-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.products.total}</div>
+              <p className="text-xs text-gray-600 mt-1">{stats.products.active} active products</p>
+              <div className="flex items-center mt-2">
+                {stats.products.growth > 0 ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownRight className="w-4 h-4 text-red-600" />}
+                <span className={`text-xs ml-1 ${stats.products.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {stats.products.growth}% from last month
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-gray-600">Total Scans</CardTitle>
+              <Eye className="w-4 h-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.qrCodes.scans}</div>
+              <p className="text-xs text-gray-600 mt-1">{stats.engagement.orders} orders received</p>
+              <div className="flex items-center mt-2">
+                {stats.engagement.growth > 0 ? <ArrowUpRight className="w-4 h-4 text-green-600" /> : <ArrowDownRight className="w-4 h-4 text-red-600" />}
+                <span className={`text-xs ml-1 ${stats.engagement.growth > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {stats.engagement.growth}% from last month
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:w-auto">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="qr-codes">QR Codes</TabsTrigger>
+            <TabsTrigger value="ai-tools">AI Tools</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
           </TabsList>
 
-          {/* Dashboard Tab */}
-          <TabsContent value="dashboard" className="space-y-8">
-            {/* KPI Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {kpiData.map((kpi, index) => (
-                <Card key={index} className="p-6 hover:shadow-md transition-shadow">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="text-sm text-muted-foreground">{kpi.label}</p>
-                      <p className="text-2xl font-bold text-craft-primary mt-1">{kpi.value}</p>
-                    </div>
-                    <div className={`w-12 h-12 ${kpi.color} rounded-lg flex items-center justify-center`}>
-                      <kpi.icon className="w-6 h-6" />
-                    </div>
-                  </div>
-                  <p className="text-xs text-green-600 mt-3 flex items-center">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    {kpi.change} from last week
-                  </p>
-                </Card>
-              ))}
-            </div>
-
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <Card className="p-6">
-                <h3 className="font-heading text-lg mb-4">Quick Actions</h3>
-                <div className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/studio">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add New Product
-                    </Link>
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/studio">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      View Messages (3)
-                    </Link>
-                  </Button>
-                  <Button className="w-full justify-start" variant="outline" asChild>
-                    <Link href="/studio">
-                      <ShoppingCart className="w-4 h-4 mr-2" />
-                      View Orders
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-
-              {/* Recent Orders */}
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-heading text-lg">Recent Orders</h3>
-                  <Button variant="link" className="text-sm p-0 h-auto" asChild>
-                    <Link href="/marketplace/orders">View All</Link>
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {recentOrders.map((order) => (
-                    <div key={order.id} className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-sm">{order.customer}</p>
-                        <p className="text-xs text-muted-foreground">{order.product}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-sm">₹{order.amount}</p>
-                        <Badge variant="secondary" className="text-xs">
-                          {order.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-
-              {/* Recent Reviews */}
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-heading text-lg">Recent Reviews</h3>
-                  <Button variant="link" className="text-sm p-0 h-auto" asChild>
-                    <Link href="/studio">View All</Link>
-                  </Button>
-                </div>
-                <div className="space-y-4">
-                  {recentReviews.map((review) => (
-                    <div key={review.id} className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-xs font-medium text-primary">
-                          {review.customer.charAt(0)}
-                        </span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-sm">{review.customer}</p>
-                          <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-3 h-3 ${i < review.rating ? 'text-marigold fill-marigold' : 'text-muted-foreground'}`}
-                              />
-                            ))}
+          <TabsContent value="overview" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                  <CardDescription>Your latest studio actions</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentActivity.length > 0 ? (
+                      recentActivity.map((activity, index) => (
+                        <div key={index} className="flex items-start gap-4 pb-4 border-b last:border-0">
+                          <div className={`p-2 rounded-lg ${activity.type === 'qr_code' ? 'bg-purple-100' : 'bg-blue-100'}`}>
+                            {activity.type === 'qr_code' ? <QrCode className="w-4 h-4 text-purple-600" /> : <Sparkles className="w-4 h-4 text-blue-600" />}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{activity.title}</p>
+                            <p className="text-xs text-gray-500">{formatDate(activity.time)}</p>
                           </div>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{review.comment}</p>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <Activity className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>No activity yet</p>
+                        <p className="text-xs mt-1">Start using studio tools to see activity</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI Tools Usage</CardTitle>
+                  <CardDescription>Most used AI features</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {aiUsage.length > 0 ? (
+                      aiUsage.slice(0, 7).map((item, index) => (
+                        <div key={index} className="space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium text-gray-700 truncate">{item.feature}</span>
+                            <span className="text-gray-500">{item.count} uses</span>
+                          </div>
+                          <Progress value={item.percentage} className="h-2" />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-gray-500">
+                        <Sparkles className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>No AI usage yet</p>
+                        <p className="text-xs mt-1">Try AI Assistance features</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
               </Card>
             </div>
 
-            {/* Store Performance */}
-            <Card className="p-6">
-              <h3 className="font-heading text-xl mb-6">Store Performance</h3>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Platform Performance */}
-                <div>
-                  <h4 className="font-medium mb-4">Platform Performance</h4>
-                  <div className="space-y-5">
-                    {platformStats.map((stat, index) => (
-                      <div key={index}>
-                        <div className="flex justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-                            <span className="font-medium">{stat.platform}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">{stat.reach} reach</span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-2.5">
-                          <div
-                            className={`h-2.5 rounded-full ${stat.color}`}
-                            style={{ width: `${(stat.reach / 1000) * 100}%` }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>{stat.posts} posts</span>
-                          <span>{stat.engagement} engagement</span>
-                        </div>
-                      </div>
-                    ))}
+            <Card>
+              <CardHeader>
+                <CardTitle>Engagement Metrics</CardTitle>
+                <CardDescription>How customers interact with your products</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg">
+                    <Heart className="w-8 h-8 mx-auto mb-2 text-pink-600" />
+                    <div className="text-2xl font-bold text-pink-600">{stats.engagement.likes}</div>
+                    <div className="text-xs text-gray-600 mt-1">Likes</div>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg">
+                    <Share2 className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                    <div className="text-2xl font-bold text-blue-600">{stats.engagement.shares}</div>
+                    <div className="text-xs text-gray-600 mt-1">Shares</div>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg">
+                    <MessageSquare className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                    <div className="text-2xl font-bold text-green-600">{stats.engagement.orders}</div>
+                    <div className="text-xs text-gray-600 mt-1">Orders</div>
+                  </div>
+                  <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg">
+                    <Eye className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                    <div className="text-2xl font-bold text-purple-600">{stats.products.views}</div>
+                    <div className="text-xs text-gray-600 mt-1">Views</div>
                   </div>
                 </div>
-
-                {/* Weekly Growth */}
-                <div>
-                  <h4 className="font-medium mb-4">Weekly Growth</h4>
-                  <div className="h-48 flex items-end gap-2 justify-center">
-                    {[65, 80, 45, 90, 75, 85, 95].map((height, index) => (
-                      <div key={index} className="flex flex-col items-center">
-                        <div 
-                          className="w-6 bg-primary rounded-t transition-all hover:bg-primary/80"
-                          style={{ height: `${height}%` }}
-                        ></div>
-                        <span className="text-xs text-muted-foreground mt-2">
-                          {['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </CardContent>
             </Card>
           </TabsContent>
 
-          {/* Library Tab */}
-          <TabsContent value="library">
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between gap-4">
-                <div className="flex gap-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                    <Input
-                      placeholder="Search products..."
-                      className="pl-10"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <Button variant="outline" size="icon">
-                    <Filter className="w-4 h-4" />
-                  </Button>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant={viewMode === "grid" ? "default" : "outline"} size="icon" onClick={() => setViewMode("grid")}>
-                    <Grid3X3 className="w-4 h-4" />
-                  </Button>
-                  <Button variant={viewMode === "list" ? "default" : "outline"} size="icon" onClick={() => setViewMode("list")}>
-                    <List className="w-4 h-4" />
-                  </Button>
-                  <Button asChild>
-                    <Link href="/studio">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add New
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-
-              {viewMode === "grid" ? (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                  {libraryItems.map((item) => (
-                    <Card key={item.id} className="overflow-hidden">
-                      <div className="relative">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full h-48 object-cover"
-                        />
-                        <Badge className="absolute top-3 right-3" variant="secondary">
-                          {item.status}
-                        </Badge>
+          <TabsContent value="qr-codes" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>QR Code Performance</CardTitle>
+                <CardDescription>Track your QR code microsites</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <div className="text-sm text-gray-600 mb-1">Total QR Codes</div>
+                      <div className="text-3xl font-bold text-purple-600">{stats.qrCodes.total}</div>
+                    </div>
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="text-sm text-gray-600 mb-1">Total Scans</div>
+                      <div className="text-3xl font-bold text-blue-600">{stats.qrCodes.scans}</div>
+                    </div>
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="text-sm text-gray-600 mb-1">Avg. Scans/QR</div>
+                      <div className="text-3xl font-bold text-green-600">
+                        {stats.qrCodes.total > 0 ? Math.round(stats.qrCodes.scans / stats.qrCodes.total) : 0}
                       </div>
-                      <div className="p-5">
-                        <div className="flex justify-between items-start mb-3">
-                          <h3 className="font-medium">{item.title}</h3>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-                          <span>{item.type}</span>
-                          <span>•</span>
-                          <span>{item.platform}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <div className="flex gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Heart className="w-4 h-4" />
-                              <span>{item.likes}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Share2 className="w-4 h-4" />
-                              <span>{item.shares}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Eye className="w-4 h-4" />
-                              <span>{item.views}</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="icon">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <Card>
-                  <div className="divide-y">
-                    {libraryItems.map((item) => (
-                      <div key={item.id} className="p-4 flex items-center justify-between hover:bg-muted/50">
-                        <div className="flex items-center gap-4">
-                          <img
-                            src={item.image}
-                            alt={item.title}
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                          <div>
-                            <h3 className="font-medium">{item.title}</h3>
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <span>{item.type}</span>
-                              <span>•</span>
-                              <span>{item.platform}</span>
-                              <span>•</span>
-                              <span>{item.date}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="flex gap-4 text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Heart className="w-4 h-4" />
-                              <span>{item.likes}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Share2 className="w-4 h-4" />
-                              <span>{item.shares}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Eye className="w-4 h-4" />
-                              <span>{item.views}</span>
-                            </div>
-                          </div>
-                          <Badge variant="secondary">{item.status}</Badge>
-                          <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                    </div>
                   </div>
-                </Card>
-              )}
-            </div>
-          </TabsContent>
 
-          {/* Insights Tab */}
-          <TabsContent value="insights">
-            <div className="space-y-8">
-              {/* Performance Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <Card className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Users className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Reach</p>
-                      <p className="text-2xl font-bold">{insightsData.totalReach.toLocaleString()}</p>
-                    </div>
-                  </div>
-                </Card>
-                <Card className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Heart className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Engagement</p>
-                      <p className="text-2xl font-bold">{insightsData.totalEngagement}</p>
-                    </div>
-                  </div>
-                </Card>
-                <Card className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <ShoppingBag className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Sales</p>
-                      <p className="text-2xl font-bold">{insightsData.totalSales}</p>
-                    </div>
-                  </div>
-                </Card>
-                <Card className="p-6">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">Conversion</p>
-                      <p className="text-2xl font-bold">{insightsData.conversionRate}%</p>
-                    </div>
-                  </div>
-                </Card>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Platform Performance */}
-                <Card className="p-6">
-                  <h3 className="font-heading text-xl mb-6">Platform Performance</h3>
-                  <div className="space-y-5">
-                    {platformStats.map((stat, index) => (
-                      <div key={index}>
-                        <div className="flex justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-3 h-3 ${stat.color} rounded-full`}></div>
-                            <span className="font-medium">{stat.platform}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground">{stat.reach} reach</span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-2.5">
-                          <div
-                            className={`h-2.5 rounded-full ${stat.color}`}
-                            style={{ width: `${(stat.reach / 1000) * 100}%` }}
-                          ></div>
-                        </div>
-                        <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                          <span>{stat.posts} posts</span>
-                          <span>{stat.engagement} engagement</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-
-                {/* Top Products */}
-                <Card className="p-6">
-                  <h3 className="font-heading text-xl mb-6">Top Performing Products</h3>
-                  <div className="space-y-4">
-                    {libraryItems.slice(0, 4).map((item, index) => (
-                      <div key={item.id} className="flex items-center gap-4">
-                        <div className="text-lg font-bold text-muted-foreground w-6">#{index + 1}</div>
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm">{item.title}</h4>
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            <span>{item.views} views</span>
-                            <span>•</span>
-                            <span>{item.likes} likes</span>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-marigold fill-marigold" />
-                            <span className="text-sm font-medium">4.9</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              </div>
-
-              {/* Growth Chart */}
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="font-heading text-xl">Weekly Growth</h3>
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-3 h-3 bg-primary rounded-full"></div>
-                    <span>Reach</span>
-                  </div>
-                </div>
-                <div className="h-64 flex items-end gap-2 justify-center">
-                  {[65, 80, 45, 90, 75, 85, 95].map((height, index) => (
-                    <div key={index} className="flex flex-col items-center">
-                      <div 
-                        className="w-8 bg-primary rounded-t transition-all hover:bg-primary/80"
-                        style={{ height: `${height}%` }}
-                      ></div>
-                      <span className="text-xs text-muted-foreground mt-2">
-                        {['M', 'T', 'W', 'T', 'F', 'S', 'S'][index]}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Card>
-            </div>
-          </TabsContent>
-
-          {/* Settings Tab */}
-          <TabsContent value="settings">
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-1">
-                  <Card className="p-6">
-                    <div className="flex flex-col items-center">
-                      <div className="w-24 h-24 bg-gradient-to-br from-terracotta to-marigold rounded-full flex items-center justify-center mb-4">
-                        <User className="w-10 h-10 text-white" />
-                      </div>
-                      <h3 className="text-xl font-heading">Suman ji</h3>
-                      <p className="text-muted-foreground text-sm">Artisan</p>
-                      <Button size="sm" variant="outline" className="mt-4" asChild>
-                        <Link href="/studio">
-                          View Public Profile
-                        </Link>
+                  {stats.qrCodes.total === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      <QrCode className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium">No QR codes created yet</p>
+                      <p className="text-sm mt-2">Create your first QR microsite to see analytics</p>
+                      <Button className="mt-4" onClick={() => window.location.href = '/studio/qr-microsite'}>
+                        Create QR Code
                       </Button>
                     </div>
-                    
-                    <div className="mt-6 pt-6 border-t">
-                      <h4 className="font-heading text-sm mb-3">Store Badges</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {userSettings.storeInfo.badges.map((badge, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
-                            {badge}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </Card>
+                  )}
                 </div>
-                
-                <div className="lg:col-span-2 space-y-6">
-                  <Card className="p-6">
-                    <h3 className="font-heading text-xl mb-6">Store Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Business Name</label>
-                        <Input defaultValue={userSettings.businessName} />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Location</label>
-                        <Input defaultValue={userSettings.location} />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="text-sm font-medium mb-2 block">Store Description</label>
-                        <textarea 
-                          className="w-full min-h-[100px] p-3 border rounded-md bg-background text-foreground"
-                          defaultValue={userSettings.storeInfo.description}
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="text-sm font-medium mb-2 block">Specialties</label>
-                        <div className="flex flex-wrap gap-2">
-                          {userSettings.storeInfo.specialties.map((specialty, index) => (
-                            <Badge key={index} variant="outline">
-                              {specialty}
-                            </Badge>
-                          ))}
-                          <Button variant="outline" size="sm" className="h-6 text-xs">
-                            <Plus className="w-3 h-3 mr-1" />
-                            Add
-                          </Button>
-                        </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="ai-tools" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>AI Tools Analytics</CardTitle>
+                <CardDescription>Your AI assistance usage breakdown</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="text-sm text-gray-600 mb-1">Total Requests</div>
+                      <div className="text-3xl font-bold text-blue-600">{stats.aiAssistance.totalRequests}</div>
+                    </div>
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <div className="text-sm text-gray-600 mb-1">Most Used Feature</div>
+                      <div className="text-xl font-bold text-purple-600 truncate">
+                        {stats.aiAssistance.mostUsed || 'None'}
                       </div>
                     </div>
-                  </Card>
-
-                  <Card className="p-6">
-                    <h3 className="font-heading text-xl mb-6">Contact Information</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Email</label>
-                        <Input type="email" defaultValue={userSettings.email} />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Phone Number</label>
-                        <Input defaultValue={userSettings.phone} />
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card className="p-6">
-                    <h3 className="font-heading text-xl mb-6">Notifications</h3>
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Email Notifications</p>
-                          <p className="text-sm text-muted-foreground">Receive updates via email</p>
-                        </div>
-                        <Button
-                          variant={userSettings.notifications.email ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {userSettings.notifications.email ? "Enabled" : "Enable"}
-                        </Button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Push Notifications</p>
-                          <p className="text-sm text-muted-foreground">Receive push notifications</p>
-                        </div>
-                        <Button
-                          variant={userSettings.notifications.push ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {userSettings.notifications.push ? "Enabled" : "Enable"}
-                        </Button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">SMS Notifications</p>
-                          <p className="text-sm text-muted-foreground">Receive updates via SMS</p>
-                        </div>
-                        <Button
-                          variant={userSettings.notifications.sms ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {userSettings.notifications.sms ? "Enabled" : "Enable"}
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card className="p-6">
-                    <h3 className="font-heading text-xl mb-6">Privacy</h3>
-                    <div className="space-y-6">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Public Profile</p>
-                          <p className="text-sm text-muted-foreground">Make your profile visible to others</p>
-                        </div>
-                        <Button
-                          variant={userSettings.privacy.profilePublic ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {userSettings.privacy.profilePublic ? "Enabled" : "Enable"}
-                        </Button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Show Statistics</p>
-                          <p className="text-sm text-muted-foreground">Display your stats publicly</p>
-                        </div>
-                        <Button
-                          variant={userSettings.privacy.showStats ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {userSettings.privacy.showStats ? "Enabled" : "Enable"}
-                        </Button>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="font-medium">Allow Messages</p>
-                          <p className="text-sm text-muted-foreground">Allow other users to message you</p>
-                        </div>
-                        <Button
-                          variant={userSettings.privacy.allowMessages ? "default" : "outline"}
-                          size="sm"
-                        >
-                          {userSettings.privacy.allowMessages ? "Enabled" : "Enable"}
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-
-                  <div className="flex gap-3">
-                    <Button>Save Changes</Button>
-                    <Button variant="outline">Cancel</Button>
                   </div>
+
+                  {stats.aiAssistance.totalRequests === 0 && (
+                    <div className="text-center py-12 text-gray-500">
+                      <Sparkles className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                      <p className="text-lg font-medium">No AI tools used yet</p>
+                      <p className="text-sm mt-2">Try AI Assistance features to see analytics</p>
+                      <Button className="mt-4" onClick={() => window.location.href = '/studio/ai-assistance'}>
+                        Try AI Assistance
+                      </Button>
+                    </div>
+                  )}
+
+                  {aiUsage.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="font-semibold text-gray-900">Feature Usage Breakdown</h3>
+                      {aiUsage.map((item, index) => (
+                        <div key={index} className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="font-medium text-gray-900">{item.feature}</span>
+                            <Badge variant="secondary">{item.count} uses</Badge>
+                          </div>
+                          <Progress value={item.percentage} className="h-2" />
+                          <div className="text-xs text-gray-500 mt-1">
+                            {item.percentage.toFixed(1)}% of total usage
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Performance Summary</CardTitle>
+                  <CardDescription>Overall studio performance</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-purple-100 rounded-lg">
+                      <div>
+                        <div className="text-sm text-gray-600">QR Code Success Rate</div>
+                        <div className="text-2xl font-bold text-purple-600">100%</div>
+                      </div>
+                      <TrendingUp className="w-8 h-8 text-purple-600" />
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
+                      <div>
+                        <div className="text-sm text-gray-600">AI Response Time</div>
+                        <div className="text-2xl font-bold text-blue-600">&lt;2s</div>
+                      </div>
+                      <Activity className="w-8 h-8 text-blue-600" />
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
+                      <div>
+                        <div className="text-sm text-gray-600">Customer Satisfaction</div>
+                        <div className="text-2xl font-bold text-green-600">4.8/5</div>
+                      </div>
+                      <Heart className="w-8 h-8 text-green-600" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                  <CardDescription>Access your studio tools</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => window.location.href = '/studio/qr-microsite'}>
+                      <QrCode className="w-6 h-6" />
+                      <span className="text-xs">QR Microsite</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => window.location.href = '/studio/ai-assistance'}>
+                      <Sparkles className="w-6 h-6" />
+                      <span className="text-xs">AI Assistance</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={loadDashboardData}>
+                      <Activity className="w-6 h-6" />
+                      <span className="text-xs">Refresh Data</span>
+                    </Button>
+                    <Button variant="outline" className="h-auto py-4 flex-col gap-2" onClick={() => window.location.href = '/'}>
+                      <BarChart3 className="w-6 h-6" />
+                      <span className="text-xs">View Reports</span>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
         </Tabs>
       </div>
-    </AppShell>
+    </div>
   )
 }

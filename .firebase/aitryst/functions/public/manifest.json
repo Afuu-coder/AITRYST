@@ -1,0 +1,21 @@
+{
+  "name": "AITRYST - AI Assistant for Indian Artisans",
+  "short_name": "AITRYST",
+  "description": "Transform your handcrafted products into compelling stories with AI-powered tools designed for Indian artisans",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8B4513",
+  "theme_color": "#FFD700",
+  "icons": [
+    {
+      "src": "/splash-screen.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

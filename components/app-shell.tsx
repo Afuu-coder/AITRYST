@@ -1,8 +1,7 @@
 "use client"
 
 import type React from "react"
-
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Sparkles,
@@ -13,27 +12,9 @@ import {
   Settings,
   Menu,
   X,
-  MessageCircle,
-  Camera,
-  Mic,
-  FileText,
-  Calculator,
-  QrCode,
-  Calendar,
-  PaletteIcon,
-  Star,
   Info,
 } from "lucide-react"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { ArtisanIcon } from "@/components/custom-icons"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 
 interface AppShellProps {
   children: React.ReactNode
@@ -46,20 +27,12 @@ export default function AppShell({ children, currentPage = "home", showSidebar =
   const [loading, setLoading] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
-  // Simplified navigation - removed About page
+  // Navigation items
   const navigationItems = [
     { id: "home", label: "Home", icon: Home, href: "/" },
+    { id: "about", label: "About", icon: Info, href: "/about" },
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { id: "studio", label: "Studio", icon: Palette, href: "/studio" },
-  ]
-
-  const studioFeatures = [
-    { id: "image-upload", label: "Image Enhancement", icon: Camera },
-    { id: "voice-record", label: "Voice Recording", icon: Mic },
-    { id: "content-gen", label: "Content Generation", icon: FileText },
-    { id: "pricing-calc", label: "Smart Pricing", icon: Calculator },
-    { id: "qr-microsite", label: "QR Microsite", icon: QrCode },
-    { id: "festival-campaigns", label: "Festival Campaigns", icon: Calendar },
   ]
 
   const sidebarItems = [
@@ -68,36 +41,6 @@ export default function AppShell({ children, currentPage = "home", showSidebar =
     { id: "insights", label: "Insights", icon: BarChart3 },
     { id: "settings", label: "Settings", icon: Settings },
   ]
-
-  // About page content moved to footer modal
-  const aboutContent = {
-    title: "About AITRYST",
-    mission: "We're on a mission to transform the way Indian artisans showcase and sell their handcrafted products by providing cutting-edge AI tools that honor tradition while embracing innovation.",
-    features: [
-      {
-        title: "Empowering Artisans",
-        description: "We provide cutting-edge AI tools that help Indian artisans showcase their crafts to a global audience.",
-      },
-      {
-        title: "Cultural Preservation",
-        description: "Our platform helps preserve traditional Indian crafts by making them accessible to new generations.",
-      },
-      {
-        title: "Global Reach",
-        description: "Connect artisans with customers worldwide through multilingual content and international marketing.",
-      },
-      {
-        title: "AI Innovation",
-        description: "Leveraging artificial intelligence to transform how artisans create, market, and sell their products.",
-      }
-    ],
-    values: [
-      "Authenticity - We honor the authenticity of traditional Indian crafts",
-      "Community - Building a supportive community for artisans",
-      "Quality - Promoting excellence in craftsmanship",
-      "Sustainability - Supporting sustainable livelihoods for artisans"
-    ]
-  }
 
   return (
     <div className="min-h-screen bg-background craft-texture">
@@ -134,71 +77,22 @@ export default function AppShell({ children, currentPage = "home", showSidebar =
                   {item.label}
                 </a>
               ))}
-              {/* About moved to footer modal */}
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" className="text-sm font-medium text-foreground hover:text-craft-primary p-0 h-auto">
-                    About
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-heading text-craft-primary">{aboutContent.title}</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
-                      Empowering Indian artisans with AI-powered tools
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-6">
-                    <p className="text-base">{aboutContent.mission}</p>
-                    
-                    <div>
-                      <h3 className="text-lg font-heading mb-3">What We Offer</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {aboutContent.features.map((feature, index) => (
-                          <div key={index} className="p-3 bg-muted rounded-lg">
-                            <h4 className="font-medium mb-1">{feature.title}</h4>
-                            <p className="text-sm text-muted-foreground">{feature.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-lg font-heading mb-3">Our Values</h3>
-                      <ul className="space-y-2">
-                        {aboutContent.values.map((value, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-craft-primary">•</span>
-                            <span className="text-sm">{value}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
             </nav>
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 lg:gap-4">
-              {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  if (showSidebar) {
-                    setSidebarOpen(!sidebarOpen)
-                  } else {
-                    setMobileMenuOpen(!mobileMenuOpen)
-                  }
-                }}
-                className="lg:hidden p-2"
+                className="lg:hidden"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
-                {sidebarOpen || mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
             </div>
           </div>
 
+          {/* Mobile Menu */}
           {!showSidebar && mobileMenuOpen && (
             <div className="lg:hidden border-t bg-card/95 backdrop-blur-md">
               <nav className="py-4 space-y-2">
@@ -215,272 +109,118 @@ export default function AppShell({ children, currentPage = "home", showSidebar =
                     {item.label}
                   </a>
                 ))}
-                {/* About moved to footer modal for mobile */}
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start text-foreground hover:bg-muted/50 text-sm font-medium px-4 py-2"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Info className="w-4 h-4 mr-3" />
-                      About
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle className="text-2xl font-heading text-craft-primary">{aboutContent.title}</DialogTitle>
-                      <DialogDescription className="text-muted-foreground">
-                        Empowering Indian artisans with AI-powered tools
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-6">
-                      <p className="text-base">{aboutContent.mission}</p>
-                      
-                      <div>
-                        <h3 className="text-lg font-heading mb-3">What We Offer</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {aboutContent.features.map((feature, index) => (
-                            <div key={index} className="p-3 bg-muted rounded-lg">
-                              <h4 className="font-medium mb-1">{feature.title}</h4>
-                              <p className="text-sm text-muted-foreground">{feature.description}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h3 className="text-lg font-heading mb-3">Our Values</h3>
-                        <ul className="space-y-2">
-                          {aboutContent.values.map((value, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-craft-primary">•</span>
-                              <span className="text-sm">{value}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </DialogContent>
-                </Dialog>
               </nav>
             </div>
           )}
         </div>
       </header>
 
-      <div className="flex">
-        {showSidebar && (
-          <>
-            {/* Mobile Sidebar Overlay */}
-            {sidebarOpen && (
-              <div
-                className="fixed inset-0 bg-background/80 backdrop-blur-sm z-30 lg:hidden"
-                onClick={() => setSidebarOpen(false)}
-              />
-            )}
-
-            <aside
-              className={`fixed lg:static inset-y-0 left-0 z-40 w-64 lg:w-72 bg-sidebar border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
-                sidebarOpen ? "translate-x-0" : "-translate-x-full"
-              }`}
+      {/* Sidebar (if enabled) */}
+      {showSidebar && (
+        <aside
+          className={`fixed inset-y-0 left-0 z-30 w-64 bg-card border-r transform transition-transform duration-300 ease-in-out ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
+        >
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="font-heading text-lg">Menu</h2>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(false)}
             >
-              <div className="flex flex-col h-full pt-4 lg:pt-6">
-                <div className="px-4 lg:px-6 pb-4 lg:pb-6">
-                  <h2 className="text-lg font-heading text-sidebar-foreground">Dashboard</h2>
-                  <p className="text-sm text-sidebar-foreground/70">Your workspace</p>
-                </div>
+              <X className="w-5 h-5" />
+            </Button>
+          </div>
+          <nav className="p-4 space-y-2">
+            {sidebarItems.map((item) => (
+              <Button
+                key={item.id}
+                variant="ghost"
+                className="w-full justify-start"
+              >
+                <item.icon className="w-4 h-4 mr-2" />
+                {item.label}
+              </Button>
+            ))}
+          </nav>
+        </aside>
+      )}
 
-                <nav className="flex-1 px-3 lg:px-4 space-y-1 lg:space-y-2">
-                  {sidebarItems.map((item) => (
-                    <div key={item.id}>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground text-sm lg:text-base py-2 lg:py-3"
-                      >
-                        <item.icon className="w-4 h-4 lg:w-5 lg:h-5 mr-2 lg:mr-3" />
-                        {item.label}
-                      </Button>
-                    </div>
-                  ))}
-                </nav>
-              </div>
-            </aside>
-          </>
-        )}
+      {/* Main Content */}
+      <main className={showSidebar ? "lg:ml-64" : ""}>
+        {children}
+      </main>
 
-        {/* Main Content */}
-        <main className={`flex-1 ${showSidebar ? "lg:ml-0" : ""}`}>{children}</main>
-      </div>
-
-      <footer className="border-t bg-gradient-to-r from-card/80 to-card/60 backdrop-blur-sm">
-        <div className="container-craft section-spacing">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      {/* Footer */}
+      <footer className="border-t bg-card/50 backdrop-blur-sm mt-auto">
+        <div className="container-craft py-8 lg:py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center festival-glow">
-                  <ArtisanIcon className="w-6 h-6 text-primary-foreground" />
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <ArtisanIcon className="w-5 h-5 text-primary-foreground" />
                 </div>
-                <span className="font-heading text-2xl text-craft-primary">AITRYST</span>
+                <h3 className="font-heading text-lg text-foreground">AITRYST</h3>
               </div>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Empowering Indian artisans with AI-powered tools to transform handicrafts into compelling stories and successful businesses.
-              </p>
-              <p className="text-sm text-muted-foreground italic">
-                Made with ❤️ for Indian craftspeople
+              <p className="text-sm text-muted-foreground">
+                Empowering Indian artisans with AI-powered tools to showcase and sell their handcrafted products.
               </p>
             </div>
 
-            {/* AI Tools */}
+            {/* Quick Links */}
             <div className="space-y-4">
-              <h3 className="font-heading text-lg text-foreground border-b pb-2 border-primary/20">AI Tools</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <a href="#" className="flex items-center text-muted-foreground hover:text-craft-primary transition-colors">
-                    <Camera className="w-4 h-4 mr-2" />
-                    Image Enhancement
+              <h3 className="font-heading text-lg text-foreground border-b pb-2 border-primary/20">Quick Links</h3>
+              <nav className="flex flex-col space-y-2">
+                {navigationItems.map((item) => (
+                  <a
+                    key={item.id}
+                    href={item.href}
+                    className="text-sm text-muted-foreground hover:text-craft-primary transition-colors"
+                  >
+                    {item.label}
                   </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center text-muted-foreground hover:text-craft-primary transition-colors">
-                    <FileText className="w-4 h-4 mr-2" />
-                    Content Generation
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center text-muted-foreground hover:text-craft-primary transition-colors">
-                    <Calculator className="w-4 h-4 mr-2" />
-                    Smart Pricing
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center text-muted-foreground hover:text-craft-primary transition-colors">
-                    <QrCode className="w-4 h-4 mr-2" />
-                    QR Microsites
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center text-muted-foreground hover:text-craft-primary transition-colors">
-                    <Mic className="w-4 h-4 mr-2" />
-                    Voice Recording
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="flex items-center text-muted-foreground hover:text-craft-primary transition-colors">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    Festival Campaigns
-                  </a>
-                </li>
+                ))}
+              </nav>
+            </div>
+
+            {/* Features */}
+            <div className="space-y-4">
+              <h3 className="font-heading text-lg text-foreground border-b pb-2 border-primary/20">Features</h3>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li>Image Enhancement</li>
+                <li>Voice Recording</li>
+                <li>AI Content Generation</li>
+                <li>Smart Pricing</li>
+                <li>QR Microsite</li>
+                <li>Festival Campaigns</li>
               </ul>
             </div>
 
-            {/* Languages & Connect */}
-            <div className="space-y-6">
-              <div>
-                <h3 className="font-heading text-lg text-foreground border-b pb-2 border-primary/20">Languages</h3>
-                <div className="grid grid-cols-2 gap-2 mt-3">
-                  <span className="text-sm text-muted-foreground">हिन्दी (Hindi)</span>
-                  <span className="text-sm text-muted-foreground">বাংলা (Bengali)</span>
-                  <span className="text-sm text-muted-foreground">తెలుగు (Telugu)</span>
-                  <span className="text-sm text-muted-foreground">English</span>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-heading text-lg text-foreground border-b pb-2 border-primary/20">Connect</h3>
-                <div className="flex items-center mt-3">
-                  <MessageCircle className="w-4 h-4 mr-2 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">support@aitryst.com</span>
-                </div>
-                <p className="text-sm text-muted-foreground mt-2">
-                  Supporting artisans across India
-                </p>
-              </div>
-            </div>
-
-            {/* About Modal Trigger */}
+            {/* Company */}
             <div className="space-y-4">
               <h3 className="font-heading text-lg text-foreground border-b pb-2 border-primary/20">Company</h3>
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="ghost" className="justify-start p-0 h-auto font-normal text-sm text-muted-foreground hover:text-craft-primary">
-                    About AITRYST
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                  <DialogHeader>
-                    <DialogTitle className="text-2xl font-heading text-craft-primary">{aboutContent.title}</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
-                      Empowering Indian artisans with AI-powered tools
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-6">
-                    <p className="text-base">{aboutContent.mission}</p>
-                    
-                    <div>
-                      <h3 className="text-lg font-heading mb-3">What We Offer</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {aboutContent.features.map((feature, index) => (
-                          <div key={index} className="p-3 bg-muted rounded-lg">
-                            <h4 className="font-medium mb-1">{feature.title}</h4>
-                            <p className="text-sm text-muted-foreground">{feature.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h3 className="text-lg font-heading mb-3">Our Values</h3>
-                      <ul className="space-y-2">
-                        {aboutContent.values.map((value, index) => (
-                          <li key={index} className="flex items-start gap-2">
-                            <span className="text-craft-primary">•</span>
-                            <span className="text-sm">{value}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
-              <div className="pt-2">
-                <a href="#" className="text-sm text-muted-foreground hover:text-craft-primary transition-colors block">
+              <div className="space-y-2">
+                <a href="/about" className="block text-sm text-muted-foreground hover:text-craft-primary transition-colors">
+                  About AITRYST
+                </a>
+                <a href="#" className="block text-sm text-muted-foreground hover:text-craft-primary transition-colors">
                   Privacy Policy
                 </a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-craft-primary transition-colors block mt-1">
+                <a href="#" className="block text-sm text-muted-foreground hover:text-craft-primary transition-colors">
                   Terms of Service
-                </a>
-                <a href="#" className="text-sm text-muted-foreground hover:text-craft-primary transition-colors block mt-1">
-                  Cultural Guidelines
                 </a>
               </div>
             </div>
           </div>
 
-          <div className="border-t mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex flex-col sm:flex-row items-center gap-3 text-sm text-muted-foreground">
-              <p>© 2025 AITRYST. Preserving culture, empowering craftspeople.</p>
-            </div>
-            <div className="flex gap-4">
-              <a href="#" className="text-sm text-muted-foreground hover:text-craft-primary transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-craft-primary transition-colors">
-                Terms of Service
-              </a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-craft-primary transition-colors">
-                Cultural Guidelines
-              </a>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Trusted by 1,000+ artisans</span>
-              <div className="flex">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-3 h-3 text-yellow-500 fill-current" />
-                ))}
-              </div>
-            </div>
+          {/* Copyright */}
+          <div className="mt-8 pt-8 border-t border-border text-center">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} AITRYST. All rights reserved. Made with ❤️ for Indian Artisans.
+            </p>
           </div>
         </div>
       </footer>

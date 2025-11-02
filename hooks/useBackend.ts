@@ -187,7 +187,7 @@ export const useBackend = (): UseBackendHook => {
         formData.append('audio', audioBlob, 'recording.webm');
         formData.append('language', language);
 
-        const response = await fetch('/api/transcribe-audio', {
+        const response = await fetch('/api/transcribe', {
           method: 'POST',
           body: formData,
         });

@@ -12,7 +12,9 @@ import {
   QrCode, 
   Calendar,
   ArrowRight,
-  Languages
+  Languages,
+  Sparkles,
+  BarChart3
 } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -64,6 +66,14 @@ const features = [
     icon: Calendar,
     path: "/studio/festival-campaigns",
     color: "bg-red-500"
+  },
+  {
+    id: "ai-assistance",
+    title: "AI Assistance",
+    description: "Get personalized recommendations, market trends, and AI-powered business tools",
+    icon: Sparkles,
+    path: "/studio/ai-assistance",
+    color: "bg-gradient-to-r from-purple-500 to-pink-500"
   }
 ]
 
@@ -179,7 +189,8 @@ function getHindiTitle(featureId: string) {
     "ai-content": "एआई सामग्री स्टूडियो",
     "smart-pricing": "स्मार्ट मूल्य निर्धारण",
     "qr-microsite": "क्यूआर माइक्रोसाइट",
-    "festival-campaigns": "त्योहार अभियान"
+    "festival-campaigns": "त्योहार अभियान",
+    "ai-assistance": "एआई सहायता"
   }
   return titles[featureId] || featureId
 }
@@ -191,7 +202,8 @@ function getHindiDescription(featureId: string) {
     "ai-content": "विभिन्न प्लेटफार्मों के लिए विपणन सामग्री उत्पन्न करें",
     "smart-pricing": "अपने उत्पादों के लिए इष्टतम मूल्य निर्धारण की गणना करें",
     "qr-microsite": "क्यूआर कोड के साथ तुरंत उत्पाद वेबपेज बनाएं",
-    "festival-campaigns": "त्योहार-विशिष्ट विपणन अभियान उत्पन्न करें"
+    "festival-campaigns": "त्योहार-विशिष्ट विपणन अभियान उत्पन्न करें",
+    "ai-assistance": "व्यक्तिगत सिफारिशें, बाजार के रुझान और एआई-संचालित व्यावसायिक उपकरण प्राप्त करें"
   }
   return descriptions[featureId] || ""
 }
